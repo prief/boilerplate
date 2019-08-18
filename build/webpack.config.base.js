@@ -5,7 +5,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const SpritesmithPlugin = require("webpack-spritesmith");
 const { templateFunction } = require("./util");
 const DebugPlugin = require("./DebugPlugin");
-
+const HardSourceWebpackPlugin = require("hard-source-webpack-plugin");
 module.exports = {
   mode:'none',
     entry: {
@@ -71,6 +71,7 @@ module.exports = {
         apiOptions: {
           cssImageRef: "~sprite.png"
         }
-      })
+      }),
+      new HardSourceWebpackPlugin()
   ]
 }

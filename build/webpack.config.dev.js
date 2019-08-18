@@ -21,12 +21,27 @@ const devServer = {
 };
 module.exports = merge(baseConf, {
   mode: "development",
+  cache: true,
   devtool: "eval-source-map",
   devServer,
   module: {
     rules: [
       configureCSSLoader(),
-      configureBabelLoader(),
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: [
+          // 在babel-loader之前添加thread-loader。
+          { loader: "thread-loader" },
+          {
+            loader: "babel-loader",
+            options: {
+              cacheDirectory: true
+            }
+          }
+          // ...省略其他配置
+        ]
+      },
       ...configureURLLoader()
     ]
   }
