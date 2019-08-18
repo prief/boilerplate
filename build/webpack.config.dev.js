@@ -2,9 +2,7 @@ const merge = require("webpack-merge");
 const baseConf = require("./webpack.config.base");
 const path = require("path");
 const {
-  configureBabelLoader,
-  configureURLLoader,
-  configureCSSLoader
+  configureURLLoader
 } = require("./util");
 
 // 本地开发服务器的配置
@@ -14,6 +12,7 @@ const devServer = {
         compress:true,
         overlay:true,
         hot: true,
+        clientLogLevel: "warning",
         proxy: {
           "/api": "http://localhost:8081"
         },
@@ -21,12 +20,14 @@ const devServer = {
 };
 module.exports = merge(baseConf, {
   mode: "development",
-  cache: true,
-  devtool: "eval-source-map",
   devServer,
   module: {
     rules: [
-      configureCSSLoader(),
+      {
+        test: /\.scss$/,
+        exclude: /node_modules/,
+        use: ["style-loader", "css-loader", "postcss-loader", "sass-loader"]
+      },
       {
         test: /\.js$/,
         exclude: /node_modules/,

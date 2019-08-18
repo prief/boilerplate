@@ -5,6 +5,8 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const SpritesmithPlugin = require("webpack-spritesmith");
 const { templateFunction } = require("./util");
 const DebugPlugin = require("./DebugPlugin");
+const webpack = require("webpack");
+const AddAssetHtmlPlugin = require("add-asset-html-webpack-plugin");
 const HardSourceWebpackPlugin = require("hard-source-webpack-plugin");
 module.exports = {
   mode:'none',
@@ -42,9 +44,22 @@ module.exports = {
     new DebugPlugin({ enable: true }),
     new VueLoaderPlugin(),
     new HtmlWebpackPlugin({
-        template: "./public/index.html",
+        template: path.resolve(__dirname, "../public/index.html"),
         title: "项目模板"
       }),
+       // 将dll文件添加到html中，必须放在htmlwebpackPlugin后面使用
+    new AddAssetHtmlPlugin({
+      // 需要将哪些文件插入到html中
+      filepath: path.resolve(__dirname, "../dll/*.dll.js"),
+      // 将dll文件输出到哪个目录
+      outputPath: "js",
+      // dll文件在页面中最终的引用路径
+      publicPath: "js"
+    }),
+    new webpack.DllReferencePlugin({
+      // webpack需要根据manifest.json找到对应dll文件中的模块。
+      manifest: require("../dll/vue.manifest.json")
+    }),
       new StyleLintPlugin({
         files: ["src/**/*.{vue, css, scss, sass}","!src/assets/generated/"]
       }),
