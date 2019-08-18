@@ -13,5 +13,10 @@
           "useBuiltIns": "usage"
         }
       ]
-    ]
+    ],
+    "env": {
+      "test": {
+        "plugins": ["istanbul"]
+      }
+    }
   }

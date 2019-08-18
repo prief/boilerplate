@@ -4,7 +4,7 @@ const StyleLintPlugin = require("stylelint-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const SpritesmithPlugin = require("webpack-spritesmith");
 const { templateFunction } = require("./util");
-
+const DebugPlugin = require("./DebugPlugin");
 
 module.exports = {
   mode:'none',
@@ -39,6 +39,7 @@ module.exports = {
     ]
   },
   plugins: [
+    new DebugPlugin({ enable: true }),
     new VueLoaderPlugin(),
     new HtmlWebpackPlugin({
         template: "./public/index.html",

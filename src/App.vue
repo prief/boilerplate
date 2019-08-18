@@ -28,7 +28,8 @@ export default {
 @import "~sprite2.scss";
 
 $black: black;
-$yellow: #ffff00;
+$yellow: #ff0;
+
 h2 {
   font-size: 40px;
   color: $black;

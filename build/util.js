@@ -30,6 +30,7 @@ const configureCSSLoader = env => {
       test: /\.scss$/,
       exclude: /node_modules/,
       use: ExtractTextPlugin.extract({
+        // publicPath:'../',
         fallback: "style-loader",
         use: ["style-loader", "css-loader", "postcss-loader", "sass-loader"]
       })

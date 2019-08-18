@@ -1,6 +1,8 @@
 import Vue from "vue";
 import App from "./App.vue";
 import router from "../src/router";
+import VConsole from "vconsole";
+new VConsole();
 
 let p = new Promise(function(resolve) {
     setTimeout(() => {
