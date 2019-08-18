@@ -1,19 +1,11 @@
 const merge = require("webpack-merge");
 const baseConf = require("./webpack.config.base");
-const {
-  configureBabelLoader,
-  configureURLLoader,
-  configureCSSLoader
-} = require("./util");
+const { configureBabelLoader } = require("./util");
 
 let testConf = merge(baseConf, {
   devtool: "inline-source-map",
   module: {
-    rules: [
-      configureCSSLoader(),
-      configureBabelLoader(),
-      ...configureURLLoader()
-    ]
+    rules: [configureBabelLoader()]
   }
 });
 // 不需要webpack的入口

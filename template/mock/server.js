@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const multipart = require("connect-multiparty");
 const config = require("./config");
+const appConfig = require('../app.config')
 const multipartMiddleware = multipart();
 const app = express();
 
@@ -59,13 +60,7 @@ config.forEach(({ method, url, data }) => {
 
 
 // 支持自定义端口
-let port = 8081;
-process.argv.forEach((arg, index, arr) => {
-  if (arg === "--port") {
-    port = arr[index + 1] || 8081;
-    return false;
-  }
-});
+let port = appConfig.mockServerPort || 8000;
 
 module.exports = app.listen(port, () => {
   console.log("Mock Server listening on http://localhost:" + port);

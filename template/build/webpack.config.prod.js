@@ -7,38 +7,46 @@ const OptimizeCSSPlugin = require("optimize-css-assets-webpack-plugin");
 const ModernBuildPlugin = require("./modernBuildPlugin");
 const {
   configureBabelLoader,
-  configureURLLoader,
-  configureCSSLoader
+  getEnv
 } = require("./util");
+const config = require("../app.config");
+let browserslist = {
+  legacy: ["> 1%", "last 2 versions", "Firefox ESR"],
+  modern: [
+    "last 2 Chrome versions",
+    "not Chrome < 60",
+    "last 2 Safari versions",
+    "not Safari < 10.1",
+    "last 2 iOS versions",
+    "not iOS < 10.3",
+    "last 2 Firefox versions",
+    "not Firefox < 54",
+    "last 2 Edge versions",
+    "not Edge < 15"
+  ]
+};
+Object.keys(config.browserslist).forEach(key =>{
+  if(typeof config.browserslist[key] == 'string' ){
+    browserslist[key] = [config.browserslist[key]]
+  } else if(Array.isArray(config.browserslist[key])) {
+    browserslist[key] = config.browserslist[key]
+  }
+})
 
 module.exports = function(
-  options = {
-    env: "test",
-    buildMode: "common",
-    browserslist: null
-  }
+  env = "test", buildMode = "common"
 ) {
-  let { env, buildMode, browserslist } = options;
   let filename = "js/[name].js";
   env = env === "prod" ? env : "test";
   if (buildMode !== "legacy" && buildMode !== "modern") {
     buildMode = "common";
   }
-  if (!Array.isArray(browserslist)) {
-    browserslist = null;
-  }
   let plugins = [new OptimizeCSSPlugin({
     assetNameRegExp: /\.optimize\.css$/g
   }),new webpack.HashedModuleIdsPlugin()];
-
-  let modern = buildMode === "common" ? false : true;
   let postfix = buildMode === "common" ? "" : `-${buildMode}`;
-  let rules = [
-    configureCSSLoader(env),
-    configureBabelLoader(modern, browserslist),
-    ...configureURLLoader(env)
-  ];
-  if (env === "prod") {
+
+  if (getEnv(env)  === "prod") {
     filename = `js/[name]${postfix}.[chunkhash:8].js`;
     plugins.push(new ExtractTextPlugin("css/[name].[hash:8].css"));
   } else {
@@ -48,6 +56,7 @@ module.exports = function(
 
   // 构建模式是modern时
   if (buildMode === "modern") {
+    browserslist = browserslist.modern;
     plugins.push(
       new ModernBuildPlugin({ modern: true }),
       new CleanWebpackPlugin({
@@ -58,6 +67,7 @@ module.exports = function(
 
   // 构建模式是legacy时
   if (buildMode === "legacy") {
+    browserslist = browserslist.legacy;
     plugins.push(
       new ModernBuildPlugin({ modern: false }),
       new CleanWebpackPlugin()
@@ -68,7 +78,8 @@ module.exports = function(
   if (buildMode === "common") {
     plugins.push(new CleanWebpackPlugin());
   }
-
+ // 配置babel-loader的浏览器
+ let rules = [configureBabelLoader(browserslist)];
   // 生产环境特定配置
   const prodConf = {
     mode:"production",

@@ -1,6 +1,11 @@
-
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
+/**
+ * 配置URLLoader
+ *
+ * @param {String} env
+ */
 const configureURLLoader = env => {
+  env = getEnv(env);
   let rules = [
     { test: /\.(png|jpe?g|gif|svg)(\?.*)?$/, type: "img" },
     { test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/, type: "media" },
@@ -8,10 +13,9 @@ const configureURLLoader = env => {
   ];
   return rules.map(rule => {
     let { type, test } = rule;
-    let name = `${type}/[name].[ext]`;
-    if (env === "prod") {
-      name = `${type}/[name].[hash:7].[ext]`;
-    }
+    let name =
+      env === "prod" ? `${type}/[name].[hash:7].[ext]` : `${type}/[name].[ext]`;
+
     return {
       test,
       loader: "url-loader",
@@ -23,40 +27,43 @@ const configureURLLoader = env => {
   });
 };
 
-// 配置css-loader。生产环境下需要安装ExtractTextPlugin
+/**
+ * 配置css-loader。生产环境下需要安装ExtractTextPlugin
+ *
+ * @param {String} env
+ */
 const configureCSSLoader = env => {
-  if (env === "prod" || env === "test") {
-    return {
-      test: /\.scss$/,
-      exclude: /node_modules/,
-      use: ExtractTextPlugin.extract({
-        // publicPath:'../',
-        fallback: "style-loader",
-        use: ["style-loader", "css-loader", "postcss-loader", "sass-loader"]
-      })
-    };
-  }
+  let use =
+    getEnv(env) === "prod"
+      ? ExtractTextPlugin.extract({
+          fallback: "style-loader",
+          use: ["style-loader", "css-loader", "postcss-loader", "sass-loader"]
+        })
+      : ["style-loader", "css-loader", "postcss-loader", "sass-loader"];
   return {
     test: /\.scss$/,
-    use: ["style-loader", "css-loader", "postcss-loader", "sass-loader"]
+    exclude: /node_modules/,
+    use
   };
 };
 
-// 配置babelloader
-const configureBabelLoader = (modern, browserlist) => {
+/**
+ * 配置babelloader
+ *
+ * @param {String} browserlist
+ */
+const configureBabelLoader = (browserlist = null) => {
   let options = {
     cacheDirectory: true
   };
-
-  if (modern) {
+  if (browserlist) {
     options = Object.assign(options, {
-      babelrc: false,
       presets: [
         [
           "@babel/preset-env",
           {
             modules: false,
-            corejs: "2.6.9",
+            corejs: "3.0.1",
             useBuiltIns: "usage",
             targets: {
               browsers: browserlist
@@ -66,7 +73,6 @@ const configureBabelLoader = (modern, browserlist) => {
       ]
     });
   }
-
   let babelLoader = {
     test: /\.js$/,
     exclude: /node_modules/,
@@ -74,8 +80,23 @@ const configureBabelLoader = (modern, browserlist) => {
   };
   return babelLoader;
 };
+/**
+ * 返回合法的环境值
+ *
+ * @param {String} env
+ */
+const getEnv = function(env) {
+  if (env === "test" || env === "prod") {
+    return env;
+  }
+  return "dev";
+};
 
-// 雪碧图模板函数
+/**
+ * 雪碧图模板函数
+ *
+ * @param {Object} data
+ */
 const templateFunction = function(data) {
   var shared = ".ico { background-image: url(I); background-size:Wpx Hpx;}"
     .replace("I", data.spritesheet.image)
@@ -96,6 +117,7 @@ const templateFunction = function(data) {
   return shared + "\n" + perSprite;
 };
 module.exports = {
+  getEnv,
   configureURLLoader,
   configureCSSLoader,
   configureBabelLoader,

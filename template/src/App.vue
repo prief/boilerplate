@@ -1,7 +1,11 @@
 <template>
   <div id="app">
     <img src="./assets/imgs/app.png" >
+    {{#router}}
     <router-view/>
+    {{else}}
+    <Hello/>
+    {{/router}}
     <ul>
       <li class="ico ico-i1"></li>
       <li class="ico ico-i2"></li>
@@ -14,9 +18,15 @@
 <script>
 import axios from "axios";
 import api from "../mock/api.js";
-
+{{#unless router}}
+import Hello from "./pages/Hello"
+{{/unless}}
 export default {
   name: "App",
+  {{#router}}{{else}}
+  components: {
+    Hello
+  }{{/router}}
   async created() {
     let res = await axios.get(api.getUserInfo);
     console.log(res);

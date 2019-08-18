@@ -1,12 +1,23 @@
 var path = require("path");
 var webpack = require("webpack");
+const { dllEntry } = require("../app.config");
 const {CleanWebpackPlugin} = require("clean-webpack-plugin");
-module.exports = {
-  mode: "production",
-  entry: {
-    // 把 vue 模块放到一个单独的dll文件中
+const dllEntryKeys = Object.keys(dllEntry);
+dllEntryKeys.forEach(key =>{
+  if(typeof dllEntry[key] == 'string'){
+    dllEntry[key] = [dllEntry[key]]
+  }
+})
+let entry = Object.assign(
+  {
     vue: ["vue"]
   },
+  dllEntry
+);
+
+module.exports = {
+  mode: "production",
+  entry,
   output: {
     // 输出的dll文件的名称，[name] 代表当前dll文件的名称，
     // 也就是 entry 中配置的 vue
